@@ -1,0 +1,8 @@
+env: "local"
+storage:
+  path: "mongodb://root:example@mongodb-user:27017"
+  db: "authdb"
+  collection: "users"
+grpc:
+  port: 44044
+  timeout: 5s

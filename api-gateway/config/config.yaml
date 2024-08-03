@@ -1,0 +1,6 @@
+env: "local"
+auth_address: "auth:44044"
+url_address: "us:44044"
+an_address: "an:44044"
+port: "8080"
+timeout: 5s

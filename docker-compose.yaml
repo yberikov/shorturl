@@ -1,0 +1,168 @@
+version: '3.8'
+
+services:
+
+  zoo1:
+    image: confluentinc/cp-zookeeper:7.3.2
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zoo1:2888:3888
+
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.3.2
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9999:9999"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
+      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+    depends_on:
+      zoo1:
+        condition: service_started
+
+  init-kafka-container:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: kafka-setup
+    depends_on:
+      kafka1:
+        condition: service_started
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+
+      kafka-topics --bootstrap-server kafka1:19092 --list
+
+      # create init topics
+      kafka-topics --create --partitions 6 --bootstrap-server kafka1:19092 --topic urls
+      "
+  
+  
+  
+  
+  
+  
+
+  mongodb-url:
+    image: mongo:latest
+    container_name: mongodb-url
+    hostname: mongodb-url
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - /path/to/local/data:/root/mongodb-url
+
+  mongodb-user:
+      image: mongo:latest
+      container_name: mongodb-user
+      hostname: mongodb-user
+      restart: always
+      ports:
+        - "27018:27017"
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: example
+      volumes:
+        - /path/to/local/data:/root/mongodb-user
+
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/data:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+
+  auth-microservice:
+    build: auth-microservice
+    hostname:  auth
+    container_name: auth-microservice
+    ports:
+      - "44044:44044"
+    depends_on:
+      mongodb-user:
+        condition: service_started
+    environment:
+      - CONFIG_PATH=config/config.yaml
+  us-microservice:
+    build:   us-microservice
+    hostname:   us
+    container_name:   us-microservice
+    ports:
+      - "44045:44044"
+    depends_on:
+      mongodb-url:
+        condition: service_started
+      kafka1:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      - CONFIG_PATH=config/config.yaml
+  an-microservice:
+    build:   analytics_microservice
+    hostname:   an
+    container_name:   an-microservice
+    ports:
+      - "44046:44044"
+    depends_on:
+      clickhouse-server:
+        condition: service_started
+    environment:
+      - CONFIG_PATH=config/config.yaml
+
+  api-gateway:
+    build:   api-gateway
+    hostname:   api-gateway
+    container_name:   api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_PATH=config/config.yaml
+  clickhouse-server:
+    hostname:   clickhouse
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9009:9009"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=user
+      - CLICKHOUSE_PASSWORD=12345
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+volumes:
+  clickhouse-data:

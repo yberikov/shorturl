@@ -1,0 +1,12 @@
+env: "local"
+storage:
+  path: "mongodb://root:example@mongodb-url:27017"
+  db: "urlshortenerdb"
+  collection: "urls"
+cache_path: "redis:6379"
+ttl: 100000s
+brokers: "kafka1:19092"
+topic: "urls"
+grpc:
+  port: 44044
+  timeout: 5s

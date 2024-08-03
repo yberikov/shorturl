@@ -1,0 +1,8 @@
+env: "local"
+storage: "clickhouse:9000"
+ttl: 100000s
+brokers: "kafka1:19092"
+topic: "urls"
+grpc:
+  port: 44044
+  timeout: 5s
