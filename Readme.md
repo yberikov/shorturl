@@ -1,4 +1,4 @@
-Проект: Сервис коротких ссылок
+Project: Short URL Service
 
 
 ## How to Run
@@ -6,52 +6,51 @@
 docker-compose up --build
 ```
 
-## Архитектурное описание
+## System Design 
 
 ![img.png](img.png)
 
-### Разделение на микросервисы
+### Splitting into microservices
 
 ```plain
-Разделение функциональности на микросервисы позволяет достичь масштабируемости, гибкости и устойчивости к отказам. В рамках данного проекта функциональность разделена на следующие микросервисы:
+Separating functionality into microservices allows for scalability, flexibility, and fault tolerance. In this project, the functionality is divided into the following microservices:
 
-1. UrlShorteningService: отвечает за генерацию коротких ссылок и их хранение.
-2. AnalyticsService: собирает статистику по доступам к ссылкам.
-3. AuthService: отвечает за аутентификацию и авторизацию пользователей.
-4. ApiGateway: предоставляет единый входной точек для всех клиентов, делегируя запросы соответствующим микросервисам.
+1. UrlShorteningService: responsible for generating short links and storing them.
+2. AnalyticsService: collects statistics on link accesses.
+3. AuthService: responsible for user authentication and authorization.
+4. ApiGateway: provides a single entry point for all clients, delegating requests to the appropriate microservices.
 
-Причины выделения функциональности:
-1. UrlShorteningService и AnalyticsService имеют разные требования к масштабируемости и производительности.
-2. AuthService может быть использован другими сервисами в будущем.
-3. ApiGateway упрощает управление и координацию взаимодействия между клиентами и микросервисами.
+Reasons for separating functionality:
+1. UrlShorteningService and AnalyticsService have different scalability and performance requirements.
+2. AuthService can be used by other services in the future.
+3. ApiGateway simplifies the management and coordination of interactions between clients and microservices.
 ```
 ### Выбор способа коммуникации
 ```plain
-gRPC: используется для межсервисного взаимодействия, так как он обеспечивает высокую производительность и эффективную сериализацию данных. Это особенно важно для сервисов, которые должны обрабатывать большое количество запросов с минимальной задержкой.
-Kafka: используется для асинхронной передачи сообщений между микросервисами, что позволяет обрабатывать большие объемы данных в режиме реального времени и улучшает отказоустойчивость системы.
+gRPC: Used for inter-service communication, as it provides high performance and efficient data serialization. This is especially important for services that need to process a large number of requests with minimal latency.
+Kafka: Used for asynchronous messaging between microservices, which allows processing large amounts of data in real time and improves system fault tolerance.
 
-Логика выбора:
-gRPC подходит для запросов, требующих немедленного ответа, например, создание короткой ссылки.
-Kafka подходит для передачи событий, которые могут обрабатываться асинхронно, например, сбор статистики доступа к ссылкам.
+Selection logic:
+gRPC is suitable for requests that require an immediate response, such as creating a short link.
+Kafka is suitable for transmitting events that can be processed asynchronously, such as collecting link access statistics.
 ```
 ### Выбор базы данных
 ```plain
-ClickHouse: выбрана для хранения аналитических данных из-за ее высокой производительности при выполнении сложных запросов и обработке больших объемов данных.
-MongoDB: выбрана для хранения данных пользователей и коротких ссылок благодаря ее гибкости и возможности горизонтального масштабирования.
+ClickHouse: Chosen for storing analytical data due to its high performance when executing complex queries and processing large volumes of data.
+MongoDB: Chosen for storing user data and short links due to its flexibility and horizontal scalability.
 
-Причины выбора:
-ClickHouse предоставляет эффективные инструменты для аналитики, такие как агрегатные функции и материализованные представления.
-MongoDB обеспечивает гибкость в работе с неструктурированными данными и легко масштабируется.
+Reasons for choosing:
+ClickHouse provides powerful tools for analytics, such as aggregate functions and materialized views.
+MongoDB provides flexibility in working with unstructured data and is easy to scale.
 ```
 
 
 ### REST API Документация
-1. Создание короткой ссылки
+1. Create a short link
 
 Endpoint: POST /createUrl
 
-Описание: Этот эндпоинт используется для создания короткой ссылки на указанный оригинальный URL.
-
+Description: This endpoint is used to create a short link to the specified original URL.
 Request Body:
 
 ```json
@@ -68,17 +67,16 @@ Response Body:
 ```
 HTTP Codes:
 ```
-201 Created: Успешно создана короткая ссылка. 
-400 Bad Request: Неверный запрос (например, отсутствует обязательное поле).
-500 Internal Server Error: Ошибка на стороне сервера.
+201 Created: Successfully created short link.
+400 Bad Request: Invalid request (e.g. missing required field).
+500 Internal Server Error: Server-side error.
 ```
 
-2. Получение оригинального URL по короткой ссылке
+2. Getting the original URL from a short link
 
 Endpoint: GET /getUrl
 
-Описание: Этот эндпоинт используется для получения оригинального URL по короткой ссылке.
-
+Description: This endpoint is used to get the original URL from a short link.
 Request Parameters:
 ```json
 "short_url": "gwgsd".
@@ -91,16 +89,16 @@ Response Body:
 ```
 HTTP Codes:
 ```
-302 Found: Успешный редирект на оригинальный URL.
-404 Not Found: Короткая ссылка не найдена.
-500 Internal Server Error: Ошибка на стороне сервера.
+302 Found: Successful redirect to original URL.
+404 Not Found: Short link not found.
+500 Internal Server Error: Server-side error.
 ```
 
-3.Получение статистики по URL
+3.Getting statistics by URL
 
 Endpoint: GET /getUrlStats
 
-Описание: Этот эндпоинт используется для получения статистики по количеству обращений к указанному URL.
+Description: This endpoint is used to get statistics on the number of requests to the specified URL.
 
 Request Parameters:
 ```json
@@ -118,16 +116,16 @@ Response Body:
 ```
 HTTP Codes:
 ```
-200 OK: Успешное получение статистики.
-404 Not Found: Короткая ссылка не найдена.
-500 Internal Server Error: Ошибка на стороне сервера.
+200 OK: Successfully retrieved statistics.
+404 Not Found: Short link not found.
+500 Internal Server Error: Error on the server side.
 ```
 
-4. Регистрация пользователя
+4.User Registration
 
 Endpoint: POST /register
 
-Описание: Этот эндпоинт используется для регистрации нового пользователя.
+Description: This endpoint is used to register a new user.
 
 Request Body:
 
@@ -146,17 +144,17 @@ Response Body:
 ```
 HTTP Codes:
 ```
-201 Created: Пользователь успешно зарегистрирован.
-400 Bad Request: Неверный запрос (например, отсутствует обязательное поле).
-409 Conflict: Пользователь с таким email уже существует.
-500 Internal Server Error: Ошибка на стороне сервера.
+201 Created: User successfully registered.
+400 Bad Request: Invalid request (e.g., required field missing).
+409 Conflict: User with this email already exists.
+500 Internal Server Error: Server-side error.
 ```
 
-5. Логин пользователя
+5. User login
 
 Endpoint: POST /login
 
-Описание: Этот эндпоинт используется для аутентификации пользователя.
+Description: This endpoint is used to authenticate the user.
 
 Request Body:
 
@@ -175,8 +173,8 @@ Response Body:
 ```
 HTTP Codes:
 ```
-200 OK: Пользователь успешно аутентифицирован.
-400 Bad Request: Неверный запрос (например, отсутствует обязательное поле).
-401 Unauthorized: Неверный email или пароль.
+200 OK: The user has been successfully authenticated.
+400 Bad Request: Invalid request (e.g. a required field is missing).
+401 Unauthorized: Invalid email or password.
 500 Internal Server Error: Ошибка на стороне сервера.
 ``` 
