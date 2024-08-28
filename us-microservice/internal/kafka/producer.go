@@ -23,7 +23,7 @@ type Producer struct {
 	ch  chan models.Url
 }
 
-func NewProducer(logger *slog.Logger, cfg *internalConfig.Config, ch chan models.Url) Producer {
+func NewProducer(logger *slog.Logger, cfg *internalConfig.Config, ch chan models.Url) (*Producer, error) {
 	// TODO kafka configuration
 	sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	config := sarama.NewConfig()
@@ -37,14 +37,15 @@ func NewProducer(logger *slog.Logger, cfg *internalConfig.Config, ch chan models
 	producer, err := sarama.NewAsyncProducer(strings.Split(cfg.Brokers, ","), config)
 	if err != nil {
 		logger.Error("Failed to start Sarama producer:", slog.String("err", err.Error()))
+		return nil, err
 	}
 
-	return Producer{
+	return &Producer{
 		log: logger,
 		prd: producer,
 		cfg: cfg,
 		ch:  ch,
-	}
+	}, nil
 }
 
 func (p *Producer) RunProducing(ctx context.Context, wg *sync.WaitGroup) {

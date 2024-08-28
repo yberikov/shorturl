@@ -5,6 +5,7 @@ import (
 	"analys/internal/config"
 	"analys/internal/services"
 	"analys/internal/storage/clickhouse"
+	"time"
 
 	"log/slog"
 )
@@ -16,7 +17,10 @@ type App struct {
 func New(log *slog.Logger, cfg *config.Config) *App {
 	storage, err := clickhouse.New(cfg.Storage)
 	if err != nil {
-		panic(err)
+		storage, err = clickhouse.WaitForStorage(cfg.Storage, 3*time.Second)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	analyticsService := services.New(log, storage)

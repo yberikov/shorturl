@@ -25,7 +25,7 @@ Reasons for separating functionality:
 2. AuthService can be used by other services in the future.
 3. ApiGateway simplifies the management and coordination of interactions between clients and microservices.
 ```
-### Выбор способа коммуникации
+### Choosing a communication method
 ```plain
 gRPC: Used for inter-service communication, as it provides high performance and efficient data serialization. This is especially important for services that need to process a large number of requests with minimal latency.
 Kafka: Used for asynchronous messaging between microservices, which allows processing large amounts of data in real time and improves system fault tolerance.
@@ -34,7 +34,7 @@ Selection logic:
 gRPC is suitable for requests that require an immediate response, such as creating a short link.
 Kafka is suitable for transmitting events that can be processed asynchronously, such as collecting link access statistics.
 ```
-### Выбор базы данных
+### Selecting a database
 ```plain
 ClickHouse: Chosen for storing analytical data due to its high performance when executing complex queries and processing large volumes of data.
 MongoDB: Chosen for storing user data and short links due to its flexibility and horizontal scalability.
@@ -45,7 +45,7 @@ MongoDB provides flexibility in working with unstructured data and is easy to sc
 ```
 
 
-### REST API Документация
+### REST API Documentation
 1. Create a short link
 
 Endpoint: POST /createUrl
@@ -79,7 +79,9 @@ Endpoint: GET /getUrl
 Description: This endpoint is used to get the original URL from a short link.
 Request Parameters:
 ```json
-"short_url": "gwgsd".
+{
+"short_url": "gwgsd"
+}
 ```
 Response Body:
 ```json

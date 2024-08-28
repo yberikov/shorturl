@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"time"
 
 	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2"
@@ -21,6 +22,19 @@ func New(addr string) (*ClickhouseStorage, error) {
 
 	storage := &ClickhouseStorage{db: conn}
 	return storage, storage.init(context.TODO())
+}
+
+func WaitForStorage(addr string, timeout time.Duration) (*ClickhouseStorage, error) {
+	end := time.Now().Add(timeout)
+
+	for time.Now().Before(end) {
+		storage, err := New(addr)
+		if err == nil {
+			return storage, nil
+		}
+		time.Sleep(1 * time.Second) // Wait before retrying
+	}
+	return nil, fmt.Errorf("failed to connect to ClickHouse at %s after %v", addr, timeout)
 }
 
 func connect(addr string) (driver.Conn, error) {

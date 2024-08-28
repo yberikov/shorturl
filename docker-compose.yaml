@@ -114,6 +114,7 @@ services:
         condition: service_started
     environment:
       - CONFIG_PATH=config/config.yaml
+
   us-microservice:
     build:   us-microservice
     hostname:   us
@@ -129,6 +130,7 @@ services:
         condition: service_started
     environment:
       - CONFIG_PATH=config/config.yaml
+
   an-microservice:
     build:   analytics_microservice
     hostname:   an
@@ -136,6 +138,8 @@ services:
     ports:
       - "44046:44044"
     depends_on:
+      kafka1:
+        condition: service_started
       clickhouse-server:
         condition: service_started
     environment:
@@ -149,6 +153,7 @@ services:
       - "8080:8080"
     environment:
       - CONFIG_PATH=config/config.yaml
+
   clickhouse-server:
     hostname:   clickhouse
     image: clickhouse/clickhouse-server:latest

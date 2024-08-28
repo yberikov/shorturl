@@ -75,7 +75,12 @@ func (a *App) Run(ctx context.Context) {
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	producer := kafka.NewProducer(a.log, a.config, a.kafkaCh)
+	producer, err := kafka.NewProducer(a.log, a.config, a.kafkaCh)
+	if err != nil {
+		a.log.Error("%s: %w", op, err)
+		ctx.Done()
+		return
+	}
 	go producer.RunProducing(ctx, wg)
 
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.config.Grpc.Port))

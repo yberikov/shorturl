@@ -3,11 +3,8 @@ package server
 import (
 	"apiGW/internal/config"
 	clientConn "apiGW/internal/http-server/client"
-	"apiGW/internal/http-server/handlers/createUrl"
-	"apiGW/internal/http-server/handlers/getUrl"
-	"apiGW/internal/http-server/handlers/getUrlStats"
-	"apiGW/internal/http-server/handlers/login"
-	"apiGW/internal/http-server/handlers/register"
+	"apiGW/internal/http-server/handlers/urls"
+	"apiGW/internal/http-server/handlers/user"
 	"apiGW/internal/http-server/middleware"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -19,13 +16,13 @@ func New(cfg *config.Config, client *clientConn.ClientConn) *http.Server {
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.JwtMiddleware(client))
 
-		r.HandleFunc("/createUrl", createUrl.New(client))
-		r.HandleFunc("/getUrlStats", getUrlStats.New(client))
+		r.HandleFunc("/createUrl", urls.NewCreateUrl(client))
+		r.HandleFunc("/getUrlStats", urls.NewGetUrlStats(client))
 	})
 
-	router.HandleFunc("/login", login.New(client))
-	router.HandleFunc("/register", register.New(client))
-	router.HandleFunc("/{alias}", getUrl.New(client))
+	router.HandleFunc("/login", user.NewLogin(client))
+	router.HandleFunc("/register", user.NewRegister(client))
+	router.HandleFunc("/{alias}", urls.NewGetUrl(client))
 
 	return &http.Server{
 		Addr:         ":" + cfg.Port,
