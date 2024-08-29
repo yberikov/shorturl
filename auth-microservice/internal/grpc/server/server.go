@@ -5,7 +5,7 @@ import (
 	"auth/internal/storage"
 	"context"
 	"errors"
-	pb "gitea.com/yberikov/us-protos/gen/auth-service"
+	pb "github.com/yberikov/us-protos/gen/auth-microservice"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

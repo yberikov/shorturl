@@ -3,7 +3,7 @@ package middleware
 import (
 	clientConn "apiGW/internal/http-server/client"
 	"context"
-	au "gitea.com/yberikov/us-protos/gen/auth-service"
+	au "github.com/yberikov/us-protos/gen/auth-microservice"
 	"net/http"
 	"strings"
 )
@@ -27,6 +27,7 @@ func JwtMiddleware(client *clientConn.ClientConn) func(http.Handler) http.Handle
 
 			grpcResp, err := client.AuthClient.ValidateToken(context.TODO(), grpcReq)
 			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 

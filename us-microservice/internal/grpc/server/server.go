@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"errors"
-	pb "gitea.com/yberikov/us-protos/gen/us-service"
+	pb "github.com/yberikov/us-protos/gen/us-microservice"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

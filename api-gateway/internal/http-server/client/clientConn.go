@@ -2,9 +2,9 @@ package clientConn
 
 import (
 	"apiGW/internal/config"
-	an "gitea.com/yberikov/us-protos/gen/analytics-service"
-	au "gitea.com/yberikov/us-protos/gen/auth-service"
-	us "gitea.com/yberikov/us-protos/gen/us-service"
+	an "github.com/yberikov/us-protos/gen/analytics-microservice"
+	au "github.com/yberikov/us-protos/gen/auth-microservice"
+	us "github.com/yberikov/us-protos/gen/us-microservice"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"

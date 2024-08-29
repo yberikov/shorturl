@@ -3,11 +3,9 @@ package clickhouse
 import (
 	"context"
 	"database/sql"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"time"
-
 	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
 type ClickhouseStorage struct {
@@ -22,19 +20,6 @@ func New(addr string) (*ClickhouseStorage, error) {
 
 	storage := &ClickhouseStorage{db: conn}
 	return storage, storage.init(context.TODO())
-}
-
-func WaitForStorage(addr string, timeout time.Duration) (*ClickhouseStorage, error) {
-	end := time.Now().Add(timeout)
-
-	for time.Now().Before(end) {
-		storage, err := New(addr)
-		if err == nil {
-			return storage, nil
-		}
-		time.Sleep(1 * time.Second) // Wait before retrying
-	}
-	return nil, fmt.Errorf("failed to connect to ClickHouse at %s after %v", addr, timeout)
 }
 
 func connect(addr string) (driver.Conn, error) {
@@ -111,7 +96,7 @@ func (c *ClickhouseStorage) SaveStats(ctx context.Context, userID int64, urlText
 }
 
 func (c *ClickhouseStorage) GetURLStats(ctx context.Context, url string) (int64, error) {
-	var total uint64
+	var total int64
 	query := `SELECT sumMerge(counter) as counter FROM counters WHERE id = ? AND user_id = 0`
 	err := c.db.QueryRow(ctx, query, url).Scan(&total)
 	if err != nil {
@@ -120,7 +105,7 @@ func (c *ClickhouseStorage) GetURLStats(ctx context.Context, url string) (int64,
 		}
 		return 0, err
 	}
-	return int64(total), nil
+	return total, nil
 }
 
 func (c *ClickhouseStorage) LogURLAccess(ctx context.Context, url string, userId int64) (bool, error) {

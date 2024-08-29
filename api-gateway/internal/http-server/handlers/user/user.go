@@ -4,7 +4,7 @@ import (
 	clientConn "apiGW/internal/http-server/client"
 	"context"
 	"encoding/json"
-	au "gitea.com/yberikov/us-protos/gen/auth-service"
+	au "github.com/yberikov/us-protos/gen/auth-microservice"
 	"google.golang.org/grpc/status"
 	"net/http"
 )

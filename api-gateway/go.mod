@@ -3,9 +3,9 @@ module apiGW
 go 1.21.1
 
 require (
-	gitea.com/yberikov/us-protos v0.0.4
 	github.com/go-chi/chi/v5 v5.0.13
 	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/yberikov/us-protos v1.0.0
 	google.golang.org/grpc v1.64.0
 )
 

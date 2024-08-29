@@ -3,10 +3,10 @@ module auth
 go 1.21.1
 
 require (
-	gitea.com/yberikov/us-protos v0.0.4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/yberikov/us-protos v1.0.0
 	go.mongodb.org/mongo-driver v1.15.1
 	golang.org/x/crypto v0.21.0
 	google.golang.org/grpc v1.64.0

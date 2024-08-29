@@ -4,7 +4,7 @@ import (
 	"analys/internal/storage"
 	"context"
 	"errors"
-	an "gitea.com/yberikov/us-protos/gen/analytics-service"
+	an "github.com/yberikov/us-protos/gen/analytics-microservice"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

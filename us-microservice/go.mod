@@ -3,11 +3,11 @@ module urlSh
 go 1.21.1
 
 require (
-	gitea.com/yberikov/us-protos v0.0.4
 	github.com/IBM/sarama v1.43.2
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/redis/go-redis/v9 v9.5.3
+	github.com/yberikov/us-protos v1.0.0
 	go.mongodb.org/mongo-driver v1.15.1
 	google.golang.org/grpc v1.64.0
 )
